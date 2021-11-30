@@ -1,11 +1,11 @@
 ####################################################################################################
 ## Builder
 ####################################################################################################
-FROM rust:latest AS builder
+FROM rust:bullseye AS builder
 
-RUN rustup target add x86_64-unknown-linux-musl
-RUN apt update && apt install -y musl-tools musl-dev
-RUN update-ca-certificates
+RUN rustup target add x86_64-unknown-linux-musl \
+    &&  apt-get update && apt install -y musl-tools musl-dev \
+    && update-ca-certificates
 
 
 WORKDIR /app
@@ -17,7 +17,7 @@ RUN cargo build --target x86_64-unknown-linux-musl --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-FROM alpine
+FROM alpine:3.15
 
 WORKDIR /app
 
