@@ -4,7 +4,7 @@
 FROM rust:bullseye AS builder
 
 RUN rustup target add x86_64-unknown-linux-musl \
-    &&  apt-get update && apt install -y musl-tools musl-dev \
+    &&  apt-get update && apt-get install -y musl-tools musl-dev \
     && update-ca-certificates
 
 
