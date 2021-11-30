@@ -1,0 +1,90 @@
+name: CI
+
+on: push
+
+jobs:
+  build-all:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      # - uses: GoogleCloudPlatform/release-please-action@v2
+      #   id: version
+      #   with:
+      #     release-type: rust
+
+      - name: Determine version and create changelog
+        id: bumper
+        uses: tomerfi/version-bumper-action@1.0.1
+        with:
+          changelog: true
+
+      - name: Update Cargo Version
+        uses: ciiiii/toml-editor@1.0.0
+        with:
+          file: "file/path/xx.toml"
+          key: "package.version"
+          value: "${{ steps.bumper.outputs.new_version }}"
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: Dockerfile
+
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t docker.io/mrdoodles/rusty-slack:v${{ steps.bumper.outputs.new_version }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}"
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "MEDIUM,CRITICAL,HIGH"
+
+      - name: Commit changes
+        run: |
+          echo "TODO: Write Commit changes step"
+
+      - name: Tag release
+        run: |
+          echo "TODO: Write Tag release step"
+
+      - name: Update major tag
+        run: |
+          echo "TODO: Write Update major tag step"
+
+      - name: Open Issue
+        if: failure()
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Workflow failure for commit: ${{ github.sha }}",
+            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_.",
+            "assignees": ["${{ github.event.pull_request.user.login }}"]
+            }' \
+          --fail
