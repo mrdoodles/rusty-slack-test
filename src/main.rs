@@ -4,7 +4,6 @@ use std::process;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     let slack_webhook = env::var("INPUT_SLACK_WEBHOOK").expect("SLACK_WEBHOOK env var is required");
     let slack_message = env::var("INPUT_MESSAGE").expect("MESSAGE env var is required");
     let github_repository = env::var("GITHUB_REPOSITORY").unwrap();
@@ -13,6 +12,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let github_sha = env::var("GITHUB_SHA").unwrap();
 
     println!("::debug ::Sending a request to slack");
+    // ${{ github.event.head_commit.message }}
 
     let obj = json!({
         "blocks": [
@@ -49,8 +49,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let resp: String = reqwest::Client::new()
         .post(slack_webhook)
-        .json(&obj).send().await?
-        .text().await?;
+        .json(&obj)
+        .send()
+        .await?
+        .text()
+        .await?;
 
     if resp != "ok" {
         println!("::error ::{}", resp);
