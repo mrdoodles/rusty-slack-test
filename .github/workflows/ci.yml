@@ -51,29 +51,30 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          docker build -t docker.io/mrdoodles/rusty-slack:v${{ steps.bumper.outputs.new_version }} .
+          docker build -t rusty .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}"
+          image-ref: "rusty"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "MEDIUM,CRITICAL,HIGH"
 
-      - name: Commit changes
-        run: |
-          echo "TODO: Write Commit changes step"
+      # - name: Commit changes
+      #   run: |
+      #     echo "TODO: Write Commit changes step"
 
-      - name: Tag release
-        run: |
-          echo "TODO: Write Tag release step"
+      # - name: Tag release
+      #   run: |
+      #     echo "TODO: Write Tag release step"
+      #     docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
 
-      - name: Update major tag
-        run: |
-          echo "TODO: Write Update major tag step"
+      # - name: Update major tag
+      #   run: |
+      #     echo "TODO: Write Update major tag step"
 
       - name: Open Issue
         if: failure()
