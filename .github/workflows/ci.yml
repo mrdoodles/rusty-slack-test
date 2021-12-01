@@ -46,7 +46,7 @@ jobs:
           args: --release
 
       - name: Lint builder Dockerfile
-      - uses: hadolint/hadolint-action@v1.6.0
+        uses: hadolint/hadolint-action@v1.6.0
         with:
           dockerfile: Dockerfile.builder
 
@@ -65,7 +65,7 @@ jobs:
           severity: "MEDIUM,CRITICAL,HIGH"
 
       - name: Lint main Dockerfile
-      - uses: hadolint/hadolint-action@v1.6.0
+        uses: hadolint/hadolint-action@v1.6.0
         with:
           dockerfile: Dockerfile
 
