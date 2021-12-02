@@ -158,29 +158,26 @@ jobs:
         run: |
           docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1"."$2"}' )
 
+      - name: Login to docker hub
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Push main tag
-        uses: julioarruda/pushimagetoregistry@v1
+        uses: actions-hub/docker@master
         with:
-          acr-tokenname: "mrdoodles"
-          acr-token: ${{ secrets.DOCKER_HUB_TOKEN }}
-          acr-account: mrdoodles.docker.io
-          acr-imagename: docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
+          args: docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
 
       - name: Push major tag
-        uses: julioarruda/pushimagetoregistry@v1
+        uses: actions-hub/docker@master
         with:
-          acr-tokenname: "mrdoodles"
-          acr-token: ${{ secrets.DOCKER_HUB_TOKEN }}
-          acr-account: mrdoodles.docker.io
-          acr-imagename: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1}' )
+          args: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1}' )
 
       - name: Push minor tag
-        uses: julioarruda/pushimagetoregistry@v1
+        uses: actions-hub/docker@master
         with:
-          acr-tokenname: "mrdoodles"
-          acr-token: ${{ secrets.DOCKER_HUB_TOKEN }}
-          acr-account: mrdoodles.docker.io
-          acr-imagename: docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1"."$2"}' )
+          args: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1"."$2"}' )
 
       # - name: slack on success
 
