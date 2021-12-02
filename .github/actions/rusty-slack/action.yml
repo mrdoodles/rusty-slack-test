@@ -1,0 +1,16 @@
+name: "Send a Slack Message"
+author: Tim Preece
+description: Send message to slack
+inputs:
+  slack_webhook:
+    description: "Slack webhook url"
+    required: true
+  message:
+    description: "Message to send to slack channel"
+    required: true
+runs:
+  using: "docker"
+  image: "mrdoodles/rusty-slack:1"
+  args:
+    - ${{ inputs.slack_webhook }}
+    - ${{ inputs.message }}

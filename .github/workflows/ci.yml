@@ -213,7 +213,11 @@ jobs:
         with:
           args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}.${{ steps.bumper.outputs.minor_version }}
 
-      # - name: slack on success
+      - name: slack on success
+        uses: ./.github/actions/rusty-slack
+        with:
+          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+          message: "New image available <https://hub.docker.com/r/mrdoodles/rusty-slack/${{ steps.bumper.outputs.new_version }}|rusty-slack:${{ steps.bumper.outputs.new_version }}>"
 
       - name: Open Issue
         if: failure()
