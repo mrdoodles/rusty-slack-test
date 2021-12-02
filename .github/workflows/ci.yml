@@ -151,7 +151,7 @@ jobs:
           path: src.zip
           name: Source Code
 
-      - name: Upload Source
+      - name: Upload CI Workflow
         uses: actions/upload-artifact@v1
         with:
           path: .github/workflows/ci.yml
@@ -183,11 +183,11 @@ jobs:
 
       - name: Update major tag
         run: |
-          docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1}' )
+          docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1}' )
 
       - name: Update minor tag
         run: |
-          docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1"."$2"}' )
+          docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1"."$2"}' )
 
       - name: Login to docker hub
         uses: actions-hub/docker/login@master
