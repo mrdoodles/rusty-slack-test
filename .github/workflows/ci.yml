@@ -66,13 +66,13 @@ jobs:
       #     args: --all-targets -- -D warnings
       #     token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run clippy manually without annotations
-        # if: ${{ !steps.check_permissions.outputs.has-permission }}
-        run: cargo clippy --all-targets -- -D warnings
+      # - name: Run clippy manually without annotations
+      #   # if: ${{ !steps.check_permissions.outputs.has-permission }}
+      #   run: cargo clippy --all-targets -- -D warnings
 
-      - uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - uses: actions-rs/audit-check@v1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions-rs/cargo@v1
         with:
@@ -96,50 +96,50 @@ jobs:
           name: code-coverage-report
           path: cobertura.xml
 
-      - name: Lint builder Dockerfile
-        uses: hadolint/hadolint-action@v1.6.0
-        with:
-          dockerfile: Dockerfile.builder
+      # - name: Lint builder Dockerfile
+      #   uses: hadolint/hadolint-action@v1.6.0
+      #   with:
+      #     dockerfile: Dockerfile.builder
 
       - name: Build an image from builder Dockerfile
         run: |
           docker build -t builder -f Dockerfile.builder .
 
-      - name: Trivy scan builder Dockerfile
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "builder"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "MEDIUM,CRITICAL,HIGH"
+      # - name: Trivy scan builder Dockerfile
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: "builder"
+      #     format: "table"
+      #     exit-code: "1"
+      #     ignore-unfixed: true
+      #     vuln-type: "os,library"
+      #     severity: "MEDIUM,CRITICAL,HIGH"
 
-      - name: Lint main Dockerfile
-        uses: hadolint/hadolint-action@v1.6.0
-        with:
-          dockerfile: Dockerfile
+      # - name: Lint main Dockerfile
+      #   uses: hadolint/hadolint-action@v1.6.0
+      #   with:
+      #     dockerfile: Dockerfile
 
       - name: Build an image from main Dockerfile
         run: |
           docker build -t rusty .
 
-      - name: Trivy scan main Dockerfile
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: "rusty"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "MEDIUM,CRITICAL,HIGH"
+      # - name: Trivy scan main Dockerfile
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: "rusty"
+      #     format: "table"
+      #     exit-code: "1"
+      #     ignore-unfixed: true
+      #     vuln-type: "os,library"
+      #     severity: "MEDIUM,CRITICAL,HIGH"
 
-      # - uses: jfrog/setup-jfrog-cli@v2
-      #   env:
-      #     JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY }}
-      # - run: |
-      #     # Ping the server
-      #     jfrog rt ping
+      # # - uses: jfrog/setup-jfrog-cli@v2
+      # #   env:
+      # #     JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY }}
+      # # - run: |
+      # #     # Ping the server
+      # #     jfrog rt ping
 
       - name: Zip Assets
         run: |
