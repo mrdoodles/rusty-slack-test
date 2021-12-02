@@ -191,12 +191,12 @@ jobs:
       - name: Push major tag
         uses: actions-hub/docker@master
         with:
-          args: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1}' )
+          args: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1}' )
 
       - name: Push minor tag
         uses: actions-hub/docker@master
         with:
-          args: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1"."$2"}' )
+          args: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1"."$2"}' )
 
       # - name: slack on success
 
