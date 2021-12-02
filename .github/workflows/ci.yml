@@ -192,8 +192,8 @@ jobs:
       - name: Login to docker hub
         uses: actions-hub/docker/login@master
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: mrdoodles
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Push main tag
         uses: actions-hub/docker@master
