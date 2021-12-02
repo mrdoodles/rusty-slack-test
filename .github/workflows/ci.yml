@@ -29,22 +29,18 @@ jobs:
 
       - name: Determine version and create changelog
         id: bumper
-        uses: tomerfi/version-bumper-action@1.0.1
+        # uses: tomerfi/version-bumper-action@1.0.1
+        uses: ./.github/actions/version-bumper
         with:
           changelog: true
-
-      - name: Set semantic versions
-        run: |
-          echo "APP_FULL_VERSION=${{ steps.bumper.outputs.new_version }}"  >> $GITHUB_ENV
-          echo "APP_MAJOR_VERSION=$APP_FULL_VERSION | awk -F . '{print $1}'" >> $GITHUB_ENV
-          echo "SEM_MINOR_VERSION=$APP_FULL_VERSION | awk -F . '{print $2}'" >> $GITHUB_ENV
-          echo "APP_MINOR_VERSION=$APP_MAJOR_VERSION.$SEM_MINOR_VERSION" >> $GITHUB_ENV
+          preset: conventionalcommits
+          folder: ./
 
       - name: Show app versions
         run: |
-          echo "$APP_FULL_VERSION"
-          echo "$APP_MAJOR_VERSION"
-          echo "$APP_MINOR_VERSION"
+          echo "MAJOR: ${{ steps.bumper.outputs.major_version }}"
+          echo "MINOR: ${{ steps.bumper.outputs.minor_version }}"
+          echo "PATCH: ${{ steps.bumper.outputs.patch_version }}"
 
       # - name: Update Cargo Version
       #   uses: ciiiii/toml-editor@1.0.0
