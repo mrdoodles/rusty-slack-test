@@ -4,10 +4,10 @@ on: push
 
 jobs:
   build-all:
-    # permissions:
-    #   issues: write
-    #   contents: write
-    timeout-minutes: 15
+    permissions:
+      issues: write
+      contents: write
+    timeout-minutes: 120
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -36,17 +36,46 @@ jobs:
       - name: Update Cargo Version
         uses: ciiiii/toml-editor@1.0.0
         with:
-          file: "file/path/xx.toml"
+          file: "./Cargo.toml"
           key: "package.version"
           value: "${{ steps.bumper.outputs.new_version }}"
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          components: rustfmt, clippy
+          override: true
+
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
+
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release
+
+      - name: Run cargo-tarpaulin
+        uses: actions-rs/tarpaulin@v0.1
+        with:
+          version: "0.15.0"
+          args: "-- --test-threads 1"
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage-report
+          path: cobertura.xml
 
       - name: Lint builder Dockerfile
         uses: hadolint/hadolint-action@v1.6.0
@@ -86,20 +115,27 @@ jobs:
           vuln-type: "os,library"
           severity: "MEDIUM,CRITICAL,HIGH"
 
+      # - uses: jfrog/setup-jfrog-cli@v2
+      #   env:
+      #     JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY }}
+      # - run: |
+      #     # Ping the server
+      #     jfrog rt ping
+
       - name: Zip Assets
         run: |
           zip -r src.zip ./src ./Cargo.*
 
-      - name: Generate release and release notes
-        uses: gittools/actions/gitreleasemanager/create@v0.9.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          owner: "someOwner"
-          repository: $GITHUB_REPOSITORY
-          milestone: "${{ steps.bumper.outputs.new_version }}"
-          name: "v${{ steps.bumper.outputs.new_version }}"
-          assets: |
-            src/src.zip
+      # - name: Generate release and release notes
+      #   uses: gittools/actions/gitreleasemanager/create@v0.9.2
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     owner: "someOwner"
+      #     repository: $GITHUB_REPOSITORY
+      #     milestone: "${{ steps.bumper.outputs.new_version }}"
+      #     name: "v${{ steps.bumper.outputs.new_version }}"
+      #     assets: |
+      #       src/src.zip
 
       # - name: Commit changes
       #   run: |
@@ -118,11 +154,33 @@ jobs:
         run: |
           docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1}' )
 
-      - name: Update manor tag
+      - name: Update minor tag
         run: |
           docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1"."$2"}' )
 
-      # - name: Push tags
+      - name: Push main tag
+        uses: julioarruda/pushimagetoregistry@v1
+        with:
+          acr-tokenname: "mrdoodles"
+          acr-token: ${{ secrets.DOCKER_HUB_TOKEN }}
+          acr-account: mrdoodles.docker.io
+          acr-imagename: docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
+
+      - name: Push major tag
+        uses: julioarruda/pushimagetoregistry@v1
+        with:
+          acr-tokenname: "mrdoodles"
+          acr-token: ${{ secrets.DOCKER_HUB_TOKEN }}
+          acr-account: mrdoodles.docker.io
+          acr-imagename: docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1}' )
+
+      - name: Push minor tag
+        uses: julioarruda/pushimagetoregistry@v1
+        with:
+          acr-tokenname: "mrdoodles"
+          acr-token: ${{ secrets.DOCKER_HUB_TOKEN }}
+          acr-account: mrdoodles.docker.io
+          acr-imagename: docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | | awk -F . '{print $1"."$2"}' )
 
       # - name: slack on success
 
