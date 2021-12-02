@@ -36,203 +36,197 @@ jobs:
           preset: conventionalcommits
           folder: ./
 
-      - name: Show app versions
-        run: |
-          echo "MAJOR: ${{ steps.bumper.outputs.major_version }}"
-          echo "MINOR: ${{ steps.bumper.outputs.minor_version }}"
-          echo "PATCH: ${{ steps.bumper.outputs.patch_version }}"
+      - name: Update Cargo Version
+        uses: ciiiii/toml-editor@1.0.0
+        with:
+          file: "./Cargo.toml"
+          key: "package.version"
+          value: "${{ steps.bumper.outputs.new_version }}"
 
-      # - name: Update Cargo Version
-      #   uses: ciiiii/toml-editor@1.0.0
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          override: true
+
+      # - uses: actions-rs/clippy-check@v1
       #   with:
-      #     file: "./Cargo.toml"
-      #     key: "package.version"
-      #     value: "${{ steps.bumper.outputs.new_version }}"
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     args: --all-features
 
-      # - uses: actions-rs/toolchain@v1
+      # - name: Check workflow permissions
+      #   id: check_permissions
+      #   uses: scherermichael-oss/action-has-permission@1.0.6
       #   with:
-      #     toolchain: stable
-      #     components: rustfmt, clippy
-      #     override: true
-
-      # # - uses: actions-rs/clippy-check@v1
-      # #   with:
-      # #     token: ${{ secrets.GITHUB_TOKEN }}
-      # #     args: --all-features
-
-      # # - name: Check workflow permissions
-      # #   id: check_permissions
-      # #   uses: scherermichael-oss/action-has-permission@1.0.6
-      # #   with:
-      # #     required-permission: write
-      # #   env:
-      # #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # # - name: Run clippy action to produce annotations
-      # #   uses: actions-rs/clippy-check@v1
-      # #   if: steps.check_permissions.outputs.has-permission
-      # #   with:
-      # #     args: --all-targets -- -D warnings
-      # #     token: ${{ secrets.GITHUB_TOKEN }}
-
-      # # - name: Run clippy manually without annotations
-      # #   # if: ${{ !steps.check_permissions.outputs.has-permission }}
-      # #   run: cargo clippy --all-targets -- -D warnings
-
-      # # - uses: actions-rs/audit-check@v1
-      # #   with:
-      # #     token: ${{ secrets.GITHUB_TOKEN }}
-
-      # - uses: actions-rs/cargo@v1
-      #   with:
-      #     command: build
-      #     args: --release
-
-      # - name: Run cargo-tarpaulin
-      #   uses: actions-rs/tarpaulin@v0.1
-      #   with:
-      #     version: "0.15.0"
-      #     args: "-- --test-threads 1"
-
-      # - name: Upload to codecov.io
-      #   uses: codecov/codecov-action@v1.0.2
-      #   with:
-      #     token: ${{secrets.CODECOV_TOKEN}}
-
-      # - name: Archive code coverage results
-      #   uses: actions/upload-artifact@v1
-      #   with:
-      #     name: code-coverage-report
-      #     path: cobertura.xml
-
-      # # - name: Lint builder Dockerfile
-      # #   uses: hadolint/hadolint-action@v1.6.0
-      # #   with:
-      # #     dockerfile: Dockerfile.builder
-
-      # - name: Build an image from builder Dockerfile
-      #   run: |
-      #     docker build -t builder -f Dockerfile.builder .
-
-      # # - name: Trivy scan builder Dockerfile
-      # #   uses: aquasecurity/trivy-action@master
-      # #   with:
-      # #     image-ref: "builder"
-      # #     format: "table"
-      # #     exit-code: "1"
-      # #     ignore-unfixed: true
-      # #     vuln-type: "os,library"
-      # #     severity: "MEDIUM,CRITICAL,HIGH"
-
-      # # - name: Lint main Dockerfile
-      # #   uses: hadolint/hadolint-action@v1.6.0
-      # #   with:
-      # #     dockerfile: Dockerfile
-
-      # - name: Build an image from main Dockerfile
-      #   run: |
-      #     docker build -t rusty .
-
-      # # - name: Trivy scan main Dockerfile
-      # #   uses: aquasecurity/trivy-action@master
-      # #   with:
-      # #     image-ref: "rusty"
-      # #     format: "table"
-      # #     exit-code: "1"
-      # #     ignore-unfixed: true
-      # #     vuln-type: "os,library"
-      # #     severity: "MEDIUM,CRITICAL,HIGH"
-
-      # # # - uses: jfrog/setup-jfrog-cli@v2
-      # # #   env:
-      # # #     JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY }}
-      # # # - run: |
-      # # #     # Ping the server
-      # # #     jfrog rt ping
-
-      # - name: Zip Assets
-      #   run: |
-      #     zip -r src.zip ./src ./Cargo.*
-
-      # - name: Upload Source
-      #   uses: actions/upload-artifact@v1
-      #   with:
-      #     path: src.zip
-      #     name: Source Code
-
-      # - name: Upload CI Workflow
-      #   uses: actions/upload-artifact@v1
-      #   with:
-      #     path: .github/workflows/ci.yml
-      #     name: Workflow Yaml
-
-      # # - name: Generate release and release notes
-      # #   uses: gittools/actions/gitreleasemanager/create@v0.9.2
-      # #   with:
-      # #     token: ${{ secrets.GITHUB_TOKEN }}
-      # #     owner: "someOwner"
-      # #     repository: $GITHUB_REPOSITORY
-      # #     milestone: "${{ steps.bumper.outputs.new_version }}"
-      # #     name: "v${{ steps.bumper.outputs.new_version }}"
-      # #     assets: |
-      # #       src/src.zip
-
-      # # - name: Commit changes
-      # #   run: |
-      # #     echo "TODO: Write Commit changes step"
-      # #     git config --global user.email "oberibot@oberiworks.com"
-      # #     git config --global user.name "Oberi Bot"
-      # #     git add .
-      # #     git commit -m"Commit release ${{ steps.bumper.outputs.new_version }}"
-      # #     git push
-
-      # - name: Tag release
-      #   run: |
-      #     docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
-
-      # - name: Update major tag
-      #   run: |
-      #     docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1}' )
-
-      # - name: Update minor tag
-      #   run: |
-      #     docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1"."$2}' )
-
-      # - name: Login to docker hub
-      #   uses: actions-hub/docker/login@master
+      #     required-permission: write
       #   env:
-      #     DOCKER_USERNAME: mrdoodles
-      #     DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Push main tag
-      #   uses: actions-hub/docker@master
+      # - name: Run clippy action to produce annotations
+      #   uses: actions-rs/clippy-check@v1
+      #   if: steps.check_permissions.outputs.has-permission
       #   with:
-      #     args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
+      #     args: --all-targets -- -D warnings
+      #     token: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Push major tag
-      #   uses: actions-hub/docker@master
+      # - name: Run clippy manually without annotations
+      #   # if: ${{ !steps.check_permissions.outputs.has-permission }}
+      #   run: cargo clippy --all-targets -- -D warnings
+
+      # - uses: actions-rs/audit-check@v1
       #   with:
-      #     args: push docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1}' )
+      #     token: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Push minor tag
-      #   uses: actions-hub/docker@master
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Run cargo-tarpaulin
+        uses: actions-rs/tarpaulin@v0.1
+        with:
+          version: "0.15.0"
+          args: "-- --test-threads 1"
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage-report
+          path: cobertura.xml
+
+      # - name: Lint builder Dockerfile
+      #   uses: hadolint/hadolint-action@v1.6.0
       #   with:
-      #     args: push docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1"."$2}' )
+      #     dockerfile: Dockerfile.builder
 
-      # # - name: slack on success
+      - name: Build an image from builder Dockerfile
+        run: |
+          docker build -t builder -f Dockerfile.builder .
 
-      # - name: Open Issue
-      #   if: failure()
+      # - name: Trivy scan builder Dockerfile
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: "builder"
+      #     format: "table"
+      #     exit-code: "1"
+      #     ignore-unfixed: true
+      #     vuln-type: "os,library"
+      #     severity: "MEDIUM,CRITICAL,HIGH"
+
+      # - name: Lint main Dockerfile
+      #   uses: hadolint/hadolint-action@v1.6.0
+      #   with:
+      #     dockerfile: Dockerfile
+
+      - name: Build an image from main Dockerfile
+        run: |
+          docker build -t rusty .
+
+      # - name: Trivy scan main Dockerfile
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: "rusty"
+      #     format: "table"
+      #     exit-code: "1"
+      #     ignore-unfixed: true
+      #     vuln-type: "os,library"
+      #     severity: "MEDIUM,CRITICAL,HIGH"
+
+      # # - uses: jfrog/setup-jfrog-cli@v2
+      # #   env:
+      # #     JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY }}
+      # # - run: |
+      # #     # Ping the server
+      # #     jfrog rt ping
+
+      - name: Zip Assets
+        run: |
+          zip -r src.zip ./src ./Cargo.*
+
+      - name: Upload Source
+        uses: actions/upload-artifact@v1
+        with:
+          path: src.zip
+          name: Source Code
+
+      - name: Upload CI Workflow
+        uses: actions/upload-artifact@v1
+        with:
+          path: .github/workflows/ci.yml
+          name: Workflow Yaml
+
+      # - name: Generate release and release notes
+      #   uses: gittools/actions/gitreleasemanager/create@v0.9.2
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     owner: "someOwner"
+      #     repository: $GITHUB_REPOSITORY
+      #     milestone: "${{ steps.bumper.outputs.new_version }}"
+      #     name: "v${{ steps.bumper.outputs.new_version }}"
+      #     assets: |
+      #       src/src.zip
+
+      # - name: Commit changes
       #   run: |
-      #     curl --request POST \
-      #     --url https://api.github.com/repos/${{ github.repository }}/issues \
-      #     --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-      #     --header 'content-type: application/json' \
-      #     --data '{
-      #       "title": "Workflow failure for commit: ${{ github.sha }}",
-      #       "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_.",
-      #       "assignees": ["${{ github.event.pull_request.user.login }}"]
-      #       }' \
-      #     --fail
+      #     echo "TODO: Write Commit changes step"
+      #     git config --global user.email "oberibot@oberiworks.com"
+      #     git config --global user.name "Oberi Bot"
+      #     git add .
+      #     git commit -m"Commit release ${{ steps.bumper.outputs.new_version }}"
+      #     git push
 
-      # # - name: slack on failure
+      - name: Tag release
+        run: |
+          docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
+
+      - name: Update major tag
+        run: |
+          docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}
+
+      - name: Update minor tag
+        run: |
+          docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}.${{ steps.bumper.outputs.minor_version }}
+
+      - name: Login to docker hub
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: mrdoodles
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Push main tag
+        uses: actions-hub/docker@master
+        with:
+          args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.new_version }}
+
+      - name: Push major tag
+        uses: actions-hub/docker@master
+        with:
+          args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}
+
+      - name: Push minor tag
+        uses: actions-hub/docker@master
+        with:
+          args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}.${{ steps.bumper.outputs.minor_version }}
+
+      # - name: slack on success
+
+      - name: Open Issue
+        if: failure()
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Workflow failure for commit: ${{ github.sha }}",
+            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_.",
+            "assignees": ["${{ github.event.pull_request.user.login }}"]
+            }' \
+          --fail
+
+      # - name: slack on failure
