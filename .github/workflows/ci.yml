@@ -187,7 +187,7 @@ jobs:
 
       - name: Update minor tag
         run: |
-          docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print "$1"."$2"}' )
+          docker tag rusty docker.io/mrdoodles/rusty-slack:$( echo ${{ steps.bumper.outputs.new_version }} | awk -F . '{print $1"."$2}' )
 
       - name: Login to docker hub
         uses: actions-hub/docker/login@master
