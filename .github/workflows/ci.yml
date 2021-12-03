@@ -193,11 +193,11 @@ jobs:
 
       - name: Update major tag
         run: |
-          docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}
+          docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_part }}
 
       - name: Update minor tag
         run: |
-          docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}.${{ steps.bumper.outputs.minor_version }}
+          docker tag rusty docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_part }}.${{ steps.bumper.outputs.minor_part }}
 
       - name: Login to docker hub
         uses: actions-hub/docker/login@master
@@ -213,12 +213,12 @@ jobs:
       - name: Push major tag
         uses: actions-hub/docker@master
         with:
-          args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}
+          args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_part }}
 
       - name: Push minor tag
         uses: actions-hub/docker@master
         with:
-          args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_version }}.${{ steps.bumper.outputs.minor_version }}
+          args: push docker.io/mrdoodles/rusty-slack:${{ steps.bumper.outputs.major_part }}.${{ steps.bumper.outputs.minor_part }}
 
       - name: slack on success
         uses: ./.github/actions/rusty-slack
