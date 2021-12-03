@@ -30,7 +30,8 @@ jobs:
       - name: Determine version and create changelog
         id: bumper
         # uses: tomerfi/version-bumper-action@1.0.1
-        uses: ./.github/actions/version-bumper
+        uses: tomerfi/version-bumper-action@7b27cb2e4e72eaf045324e9597987b39d2a082d7
+        #uses: ./.github/actions/version-bumper
         with:
           changelog: true
           preset: conventionalcommits
@@ -160,6 +161,12 @@ jobs:
           path: .github/workflows/ci.yml
           name: Workflow Yaml
 
+      - name: Upload Changelog
+        uses: actions/upload-artifact@v1
+        with:
+          path: changelog-${{ steps.bumper.outputs.new_version }}.md
+          name: Changelog
+
       # - name: Generate release and release notes
       #   uses: gittools/actions/gitreleasemanager/create@v0.9.2
       #   with:
@@ -219,6 +226,7 @@ jobs:
           slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
           message: "New image available <https://hub.docker.com/r/mrdoodles/rusty-slack/${{ steps.bumper.outputs.new_version }}|rusty-slack:${{ steps.bumper.outputs.new_version }}>"
 
+          ## TODO - swap this for my open issue
       - name: Open Issue
         if: failure()
         run: |
@@ -234,3 +242,9 @@ jobs:
           --fail
 
       # - name: slack on failure
+      - name: slack on failure
+        if: failure()
+        uses: ./.github/actions/rusty-slack
+        with:
+          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+          message: "New issue created <https://hub.docker.com/r/mrdoodles/rusty-slack/${{ steps.bumper.outputs.new_version }}|rusty-slack:${{ steps.bumper.outputs.new_version }}>"
