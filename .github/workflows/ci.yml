@@ -224,6 +224,7 @@ jobs:
         uses: ./.github/actions/rusty-slack
         with:
           slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+          heading: "New image available"
           message: "New image available <https://hub.docker.com/r/mrdoodles/rusty-slack/${{ steps.bumper.outputs.new_version }}|rusty-slack:${{ steps.bumper.outputs.new_version }}>"
 
           ## TODO - swap this for my open issue
@@ -247,4 +248,5 @@ jobs:
         uses: ./.github/actions/rusty-slack
         with:
           slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+          heading: "CI Failure - Issue created"
           message: "New issue created <https://hub.docker.com/r/mrdoodles/rusty-slack/${{ steps.bumper.outputs.new_version }}|rusty-slack:${{ steps.bumper.outputs.new_version }}>"

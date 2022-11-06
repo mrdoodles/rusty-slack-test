@@ -5,12 +5,22 @@ inputs:
   slack_webhook:
     description: "Slack webhook url"
     required: true
+  heading:
+    description: "Message heading"
+    required: true
   message:
     description: "Message to send to slack channel"
     required: true
+  template:
+    description: "Message template to use one of default, detailed, file or custom"
+    required: false
+  custom:
+    description: "If template is file the path to the json file, if template is custom the json string"
+    required: false
 runs:
   using: "docker"
   image: "mrdoodles/rusty-slack:1"
   args:
     - ${{ inputs.slack_webhook }}
+    - ${{ inputs.heading }}
     - ${{ inputs.message }}
